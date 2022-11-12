@@ -29,18 +29,23 @@ export const fetchStocks = async (query: string) => {
 		}`,
 	)
 	const data = await response.json()
-	const stockSymbols = data.bestMatches.map((stock: IStockSymbolData) => ({
-		symbol: stock['1. symbol'],
-		name: stock['2. name'],
-		isFavorite:
-			JSON.parse(localStorage.getItem('favorites') || '[]').includes(stock['1. symbol']) || false,
-	}))
-	return stockSymbols
+	if (data.Note) return { Note: data.Note }
+	if (data && data.bestMatches) {
+		const stockSymbols = data.bestMatches.map((stock: IStockSymbolData) => ({
+			symbol: stock['1. symbol'],
+			name: stock['2. name'],
+			isFavorite:
+				JSON.parse(localStorage.getItem('favorites') || '[]').includes(stock['1. symbol']) || false,
+		}))
+		return stockSymbols
+	} else {
+		return []
+	}
 }
 
-export const fetchStockDetails = async (stock: IStockSymbol) => {
+export const fetchStockDetails = async (symbol: string, isFavorite: boolean) => {
 	const response = await fetch(
-		`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stock.symbol}&apikey=${
+		`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${
 			import.meta.env.VITE_ALPHAVANTAGE_API_KEY
 		}`,
 	)
@@ -50,6 +55,6 @@ export const fetchStockDetails = async (stock: IStockSymbol) => {
 	return {
 		symbol: stockDetails['01. symbol'],
 		price: stockDetails['05. price'],
-		isFavorite: stock.isFavorite,
+		isFavorite: isFavorite,
 	}
 }
