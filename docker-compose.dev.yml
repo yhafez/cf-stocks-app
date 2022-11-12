@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   app:
-    container_name: vite-client
-    image: vite-client
+    container_name: cf-stocks-app
+    image: cf-stocks-app
     build:
       context: .
       target: development
